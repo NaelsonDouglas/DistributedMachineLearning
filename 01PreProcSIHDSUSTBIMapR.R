@@ -91,19 +91,11 @@ map <-expression({
 })
 
 
+#A exclus'ao dos dedos repetidos ser[a feita dentro do Reduce. O c[odigo considera acessos do tipo reduce.values[n+1], que necessariamente pode n'ao estar no mesmo node.
 reduce <- expression(
-  pre = {
-    reduceoutputvalue <- data.frame()
-  },
-  reduce = {
-    reduceoutputvalue <- rbind(reduceoutputvalue, do.call(rbind, reduce.values))
-  },
-  post = {
-    reduceoutputkey <- reduce.key[1]
-    attr(reduceoutputvalue, "location") <- reduce.key[1:3]
-    names(attr(reduceoutputvalue, "location")) <- c("FIPS","county","state")
-    rhcollect(reduceoutputkey, reduceoutputvalue)
-  }
+  pre = {  },
+  reduce = {  },
+  post = {  }
 )
 
 
