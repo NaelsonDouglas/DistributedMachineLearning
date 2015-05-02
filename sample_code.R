@@ -1,13 +1,5 @@
-
-mr1 <- rhwatch(
-  map      = map1,
-  reduce   = reduce1,
-  input    = rhfmt("/yourloginname/housing/housing.txt", type = "text"),
-  output   = rhfmt("/yourloginname/housing/byCounty", type = "sequence"),
-  readback = FALSE
-)
-
-
+library(Rhipe)
+rhinit()
 map1 <- expression({
   lapply(seq_along(map.keys), function(r) {
     line = strsplit(map.values[[r]], ",")[[1]]
@@ -40,3 +32,10 @@ reduce1 <- expression(
 )
 
 
+mr1 <- rhwatch(
+  map      = map1,
+  reduce   = reduce1,
+  input    = rhfmt("/in.txt", type = "text"),
+  output   = rhfmt("/byCounty", type = "sequence"),
+  readback = FALSE
+)
