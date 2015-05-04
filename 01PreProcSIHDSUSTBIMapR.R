@@ -1,39 +1,12 @@
-##TO-DO: Perguntar ao Elias se o .csv contém mais campos não numéricos
 
 library(Rhipe)
 rhinit()
 
 {
-# Remove tudo do ambiente
-closeAllConnections()
-rm(list=ls())
 
-# Ajusta o diret?rio de trabalho
-setwd("/home/username/Desktop/Elias")
-
-# Leitura do arquivo
-
-#Isto morre, o arquivo fica no HDFS e não no disco local
-data <- (read.csv("TBI_SUS_SIHD.csv", stringsAsFactors=FALSE, sep=";", header=T), nrow=10)
-
-# Remove wrong values
-data <- subset(data, (BATHROOM   > 0 & BATHROOM   <=1 &
-                        ELETRICITY > 0 & ELETRICITY <=1 &
-                        LITERACY   > 0 & LITERACY   <=1 &
-                        URB_RUR    > 0 & URB_RUR    <=1 &
-                        EDUCATION  > 0 & EDUCATION  <=1 &
-                        ANO >= 2002    & ANO        <=2012
-)
-)
-# Ordenando dados 
-data <- data[order(data$ANO, data$MES, data$MUNIC_RES, data$IDADE, data$SEXO),]
-
-# remove linha que contenha qualquer NA
-data<-na.omit(data)
 # Cronometrando (Rhipe já tem suporte nativo para isto)
 ptm <- proc.time()
 }
-
 
 map <-expression({
 {   
@@ -85,16 +58,21 @@ lapply(seq_along(map.keys, function(i){
       URB_RUR = as.numeric(line[18]),
       stringsAsFactors = FALSE
     )
+  # Ordenando dados 
+  outputvalue <- outputvalue[order(outputvalue$ANO, outputvalue$MES, outputvalue$MUNIC_RES, outputvalue$IDADE, outputvalue$SEXO),]  
+  # remove linha que contenha qualquer NA
+  outputvalue<-na.omit(outputvalue)
+  
   # Checa se os registros são duplicados. 
   # Em caso positivo nada é feito e o map para sem nenhum valor emitido(valores repetidos não são postos à frente)
   # Em caso negativo, a coleta é feita usando o número da linha como key
-  if (    UF_ant        == data[i,1] &
-          CITY_ant      == data[i,2] &
-          ANO_ant       == data[i,3] &
-          MES_ant       == data[i,4] &
-          MUNIC_RES_ant == data[i,7] &
-          IDADE_ant     == data[i,8] &
-          SEXO_ant      == data[i,9] 
+  if (    UF_ant        == outputvalue[i,1] &
+          CITY_ant      == outputvalue[i,2] &
+          ANO_ant       == outputvalue[i,3] &
+          MES_ant       == outputvalue[i,4] &
+          MUNIC_RES_ant == outputvalue[i,7] &
+          IDADE_ant     == outputvalue[i,8] &
+          SEXO_ant      == outputvalue[i,9] 
   )
   {
     #valor repetido dispensado
