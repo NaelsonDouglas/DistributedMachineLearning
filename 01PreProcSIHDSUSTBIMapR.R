@@ -104,7 +104,6 @@ reduce <- expression(
 )
 
 
-
 mr <- rhwatch(
   map      = map,
   reduce   = reduce,
