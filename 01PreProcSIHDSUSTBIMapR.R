@@ -5,7 +5,18 @@ rhinit()
 
 
 map <-expression({
-
+{   
+  # Variáveis de trabalho
+  UF_ant        <- 0
+  CITY_ant      <- 0
+  ANO_ant       <- 0
+  MES_ant       <- 0
+  MUNIC_RES_ant <- 0
+  IDADE_ant     <- 0
+  SEXO_ant      <- 0
+  
+  
+}
 
 #Executa os maps 
 lapply(seq_along(map.keys, function(i){
