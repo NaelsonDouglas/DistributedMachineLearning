@@ -2,25 +2,10 @@
 library(Rhipe)
 rhinit()
 
-{
 
-# Cronometrando (Rhipe já tem suporte nativo para isto)
-ptm <- proc.time()
-}
 
 map <-expression({
-{   
-  # Variáveis de trabalho
-  0        <- 0
-  CITY_ant      <- 0
-  ANO_ant       <- 0
-  MES_ant       <- 0
-  MUNIC_RES_ant <- 0
-  IDADE_ant     <- 0
-  SEXO_ant      <- 0
-  
-  attach(data)
-}
+
 
 #Executa os maps 
 lapply(seq_along(map.keys, function(i){
