@@ -31,6 +31,7 @@ map <-expression(
       EDUCATION = as.numeric(line[14]),
       BATHROOM = as.numeric(line[15]),
       ELETRICITY = as.numeric(line[16]),
+      LITERACY = as.numeric(line[17]),
       URB_RUR = as.numeric(line[18]),
       stringsAsFactors = FALSE
     )    
