@@ -7,14 +7,9 @@ rhinit()
 
 map <-expression(
   
-  # Variáveis de trabalho
-  UF_ant        <- 0,
-  CITY_ant      <- 0,
-  ANO_ant       <- 0,
-  MES_ant       <- 0,
-  MUNIC_RES_ant <- 0,
-  IDADE_ant     <- 0,
-  SEXO_ant      <- 0,
+  #ordena os valores
+  
+  
   
   #Executa os maps 
   lapply(seq_along(map.keys), function(i){  
@@ -45,10 +40,7 @@ map <-expression(
       URB_RUR = as.numeric(line[18]),
       stringsAsFactors = FALSE
     )
-    # Ordenando dados 
-    outputvalue <- outputvalue[order(outputvalue$ANO, outputvalue$MES, outputvalue$MUNIC_RES, outputvalue$IDADE, outputvalue$SEXO)]  
-    # remove linha que contenha qualquer NA
-    ##outputvalue<-na.omit(outputvalue)
+ 
     
     # Checa se os registros são duplicados. 
     # Em caso positivo nada é feito e o map para sem nenhum valor emitido(valores repetidos não são postos à frente)
@@ -63,7 +55,7 @@ map <-expression(
             MUNIC_RES_ant == outputvalue[i,7] &
             IDADE_ant     == outputvalue[i,8] &
             SEXO_ant      == outputvalue[i,9] 
-          }
+          
       )
       {
         #valor repetido dispensado
@@ -96,8 +88,8 @@ reduce <- expression(
 mr <- rhwatch(
   map      = map,
   reduce   = reduce,
-  input    = rhfmt("in.txt", type = "text"),
-  output   = rhfmt("output", type = "sequence"),
+  input    = rhfmt("small.csv", type = "text"),
+  output   = rhfmt("output", type = "text"),
   readback = TRUE  
 )
 

@@ -7,7 +7,7 @@ rhput("in.txt","/in2.txt",deletedest=TRUE)
 
 #Maper
 map <-expression(  
-  #Executa os maps 
+  #Executa os maps   
   lapply(seq_along(map.keys), function(i){      
     #separa a linha do .csv pelos ; dela
     #map.values[i] == coluna i---- map.values[[i]] == linha i

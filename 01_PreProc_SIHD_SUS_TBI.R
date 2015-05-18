@@ -2,7 +2,7 @@
 closeAllConnections()
 rm(list=ls())
 
-# Ajusta o diretório de trabalho
+# Ajusta o diret?rio de trabalho
 setwd("~/R/Catherine_TBI/Naelson")
 
 # Leitura do arquivo
@@ -19,12 +19,12 @@ data <- subset(data, (BATHROOM   > 0 & BATHROOM   <=1 &
                )
 
 # Ordenando dados 
-data <- data[order(data$ANO, data$MES, data$MUNIC_RES, data$IDADE, data$SEXO),]
+data <- data[order(data$ANO, data$MES, data$MUNIC_RES, data$IDADE, data$SEXO)]
 
 # remove linha que contenha qualquer NA
 data<-na.omit(data)
 
-# Variáveis de trabalho
+# Vari?veis de trabalho
 UF_ant        <- 0
 CITY_ant      <- 0
 ANO_ant       <- 0
@@ -38,7 +38,7 @@ attach(data)
 # Cronometrando
 ptm <- proc.time()
 
-# Monta um cabeçalho
+# Monta um cabe?alho
 cabec1 <- c("  SEQ     UF      CIDADE     ANO   MES        RESID.  IDADE   SEXO")
 cabec2 <- c("  ---    ----     -------   ----   ---        ------  -----   ----")
 
