@@ -1,12 +1,14 @@
 # Remove tudo do ambiente
+setwd("/home/username/Desktop/DBN")
 closeAllConnections()
+src="small.csv"
 rm(list=ls())
 
 # Ajusta o diret?rio de trabalho
-setwd("~/R/Catherine_TBI/Naelson")
+
 
 # Leitura do arquivo
-data <- (read.csv("TBI_SUS_SIHD.csv", stringsAsFactors=FALSE, sep=";", header=T))
+data <- (read.csv("small.csv", stringsAsFactors=FALSE, sep=";", header=T))
 
 # Remove wrong values
 data <- subset(data, (BATHROOM   > 0 & BATHROOM   <=1 &

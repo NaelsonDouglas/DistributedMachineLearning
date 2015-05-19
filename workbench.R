@@ -1,71 +1,75 @@
-#Referência para o bug "variable discovered, but not found: https://groups.google.com/forum/#!searchin/rhipe/Following$20variables$20were$20discovered$20but$20not$20found$3A/rhipe/DPRMo92EtIc/G0R2oe7fvBMJ"
-#Este warning diz que o Rhipe tentou copiar a variável do workspace, mas ele não existia lá. Então ele cria uma nova.
-library(Rhipe)
-rhinit()
+src="small.csv"
+databaseInRdata="dataBaseInRdata"
+output="outputWB"
+
+
+#Lê a base de dados para poder salvar ela em um Rdata global no HDFS
+Rdata <- rhread(src,type="text",max=-1,mc=FALSE)
+
+Rdata <- strsplit(Rdata,";")
+
+for (i in 1:length(Rdata)){
+  
+  line = Rdata[i]
+  
+  
+  
+}
+
+
+Rdata <- subset(Rdata, (BATHROOM   > 0 & BATHROOM   <=1 &
+                          ELETRICITY > 0 & ELETRICITY <=1 &
+                          LITERACY   > 0 & LITERACY   <=1 &
+                          URB_RUR    > 0 & URB_RUR    <=1 &
+                          EDUCATION  > 0 & EDUCATION  <=1 &
+                          ANO >= 2002    & ANO        <=2012
+)
+)
+# Ordenando dados 
+Rdata <- Rdata[order(Rdata$ANO, Rdata$MES, Rdata$MUNIC_RES, Rdata$IDADE, Rdata$SEXO)]
+
+#SALVA O Rdata no HDFS
+rhsave(Rdata,file=databaseInRdata)
+
+#Organizando a base de dados
 
 
 
-#Maper
-map <-expression(  
-  #Executa os maps   
-  lapply(seq_along(map.keys), function(i){      
-    #separa a linha do .csv pelos ; dela
-    #map.values[i] == coluna i---- map.values[[i]] == linha i
-    line = strsplit(map.values[[1]], ";")[[1]]           
+map<-expression(
+  lapply(seq_along(map.keys), function(i){
     
-    #Este dataframe armazena uma única linha do .csv e a usa como value.
-    outputvalue <- data.frame(    
-      UF =  as.numeric(line[1]),
-      CITY = as.numeric(line[2]),
-      ANO = as.numeric(line[3]),
-      MES = as.numeric(line[4]),
-      MUNIC_MOV = as.numeric(line[5]),
-      MUNIC_RES  = line[6], ##Este campo contém caracteres não-numéricos
-      IDADE = as.numeric(line[7]),
-      SEXO = as.numeric(line[8]),
-      DIAG_PRINC = line[9],
-      DIAS_PERM = as.numeric(line[10]),
-      VAL_UTI = as.numeric(line[11]),
-      VAL_TOT = as.numeric(line[12]),
-      MORTE = as.numeric(line[13]),
-      EDUCATION = as.numeric(line[14]),
-      BATHROOM = as.numeric(line[15]),
-      ELETRICITY = as.numeric(line[16]),
-      LITERACY = as.numeric(line[17]),
-      URB_RUR = as.numeric(line[18]),
-      stringsAsFactors = FALSE
-    )    
-       
-      #Faz a coleta
-      outputkey = i
-      rhcollect(outputkey,outputvalue)
-  }))
-
-
-#Reducer
-reduce <- expression(
-  pre = {    
-    reduceoutputvalue <- data.frame()   
-  },
-  reduce = {
-    reduceoutputvalue <- rbind(reduceoutputvalue, do.call(rbind, reduce.values))     
-  },
-  post = {
-    #joga os valores para a saída sob uma mesma key (já que temos apenas um arquivo para ser salvo)
-    reduceoutputkey <- reduce.key[1]    
-    rhcollect(reduceoutputkey, reduceoutputvalue)
-  }
+    #para não comparar o header
+    if (i>1){
+      
+      
+    }
+    else{
+      outputcollect(0,map.values[i])
+    }
+    
+    
+    
+    
+    #Fim function(i)  
+  })
+  
+  
+  
 )
 
-#Driver
+
+reduce<-expression(
+  
+)
+
+
 mr <- rhwatch(
   map      = map,
   reduce   = reduce,
-  input    = rhfmt("small.csv", type = "text"),
-  output   = rhfmt("outputWB", type = "sequence"),
-  readback = TRUE  
+  input    = rhfmt(src, type = "text"),
+  output   = rhfmt(output, type = "sequence"),
+  readback = FALSE,
+  shared=c(databaseInRdata)
 )
 
-
-#lê a saída 
-rhread(outputWB)
+rhread(output)
