@@ -2,7 +2,7 @@
 #Este warning diz que o Rhipe tentou copiar a variável do workspace, mas ele não existia lá. Então ele cria uma nova.
 library(Rhipe)
 rhinit()
-rhput("in.txt","/in2.txt",deletedest=TRUE)
+
 
 
 #Maper
@@ -11,7 +11,7 @@ map <-expression(
   lapply(seq_along(map.keys), function(i){      
     #separa a linha do .csv pelos ; dela
     #map.values[i] == coluna i---- map.values[[i]] == linha i
-    line = strsplit(map.values[[i]], ";")[[1]]           
+    line = strsplit(map.values[[1]], ";")[[1]]           
     
     #Este dataframe armazena uma única linha do .csv e a usa como value.
     outputvalue <- data.frame(    
@@ -61,7 +61,7 @@ reduce <- expression(
 mr <- rhwatch(
   map      = map,
   reduce   = reduce,
-  input    = rhfmt("in.txt", type = "text"),
+  input    = rhfmt("small.csv", type = "text"),
   output   = rhfmt("outputWB", type = "sequence"),
   readback = TRUE  
 )
