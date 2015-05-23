@@ -1,11 +1,7 @@
-# Remove tudo do ambiente
-setwd("/home/username/Desktop/DBN")
-closeAllConnections()
-src="small.csv"
-rm(list=ls())
+
 
 # Ajusta o diret?rio de trabalho
-
+setwd("/home/username/Desktop/DBN")
 
 # Leitura do arquivo
 data <- (read.csv("small.csv", stringsAsFactors=FALSE, sep=";", header=T))
@@ -25,6 +21,8 @@ data <- data[order(data$ANO, data$MES, data$MUNIC_RES, data$IDADE, data$SEXO)]
 
 # remove linha que contenha qualquer NA
 data<-na.omit(data)
+
+
 
 # Vari?veis de trabalho
 UF_ant        <- 0

@@ -1,30 +1,57 @@
+
+msplit <- function(x){  
+  return(strsplit(x,";")[[1]])    
+}
+
+
+
 src="small.csv"
 databaseInRdata="dataBaseInRdata"
 output="outputWB"
+line_size=18
 
 
 #Lê a base de dados para poder salvar ela em um Rdata global no HDFS
-Rdata <- rhread(src,type="text",max=-1,mc=FALSE)
+Rdata <- rhread("small.csv",type="text",max=-1,mc=FALSE)
 
-#data <- data[order(data$ANO, data$MES, data$MUNIC_RES, data$IDADE, data$SEXO)]
+header <- msplit(Rdata[1])
+RdataFrame<-data.frame(matrix(ncol=18))
+names(RdataFrame) <- header
+if()
+  
+  
+  RdataFrame <-data.frame()
+for (i in 2:length(Rdata)){
+  RdataFrame <-rbind(RdataFrame,msplit(Rdata[i]))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rdata <- strsplit(Rdata,";")
 
 for (i in 1:length(Rdata)){
-  dfRdata <-data.frame;
-  line = strsplit(Rdata[[i]],";")[[1]]
- 
   
-  dfBuffer <- data.frame(
-      ANO =  as.numeric(line[3]),  
-      MES = as.numeric(line[4]),      
-      MUNIC_RES = as.numeric(line[6]),
-      IDADE = as.numeric(line[7]),
-      SEXO  = as.numeric(line[8]),
-      stringsAsFactors = FALSE
-  )
+  line = Rdata[i]
   
   
-
-rbind(dfRdata, dfBuffer)
+  
 }
 
 
@@ -49,19 +76,6 @@ rhsave(Rdata,file=databaseInRdata)
 map<-expression(
   lapply(seq_along(map.keys), function(i){
     
-    #para não comparar o header
-    if (i>1){
-      
-      
-    }
-    else{
-      outputcollect(0,map.values[i])
-    }
-    
-    
-    
-    
-    #Fim function(i)  
   })
   
   
