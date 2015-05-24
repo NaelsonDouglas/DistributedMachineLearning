@@ -1,8 +1,8 @@
 #library(Rhipe)
 #rhinit()
-
+output="output"
 data_input = "small.csv"
-pre_processed_input = "pre_processed_input.csv"
+pre_processed_input = "pre_processed_input.csv"3
 dir_on_hdfs = "/"
 
 
@@ -44,7 +44,8 @@ rhput(pre_processed_input, dir_on_hdfs)
 map<-expression(
   
   lapply(seq_along(map.keys), function(i){
-    line <- strsplit(map.values[[i]],",")[[1]]
+    line = strsplit(map.values[[i]],",")[[1]]
+    
     
     outputvalue<- data.frame(
       MES       <-as.numeric(line[1]),
@@ -56,8 +57,7 @@ map<-expression(
       MUNIC_MOV <-as.numeric(line[7])
     )    
     
-    rhcollect(i,outputvalue)    
-  })
+    rhcollect(i,outputvalue)})
   
   
   
@@ -70,7 +70,8 @@ reduce<-expression(
     reduceoutputvalue <-data.frame()
   },
   reduce={
-    outputvalue<-rbind(reduceoutputvalue, do.call(rbind, reduce.values))
+    
+    reduceoutputvalue<-rbind(reduceoutputvalue, do.call(rbind, reduce.values))
   },
   post={
     reduceoutputkey <- reduce.key[1]    
@@ -80,13 +81,11 @@ reduce<-expression(
 
 
 mr <- rhwatch(
-  #setup    = setup,
   map      = map,
   reduce   = reduce,
   input    = rhfmt(pre_processed_input, type = "text"),
-  output   = rhfmt(output, type = "sequence"),
+  output   = rhfmt(output, type = "text"),
   readback = FALSE,
   
 )
 
-rhread(output)
