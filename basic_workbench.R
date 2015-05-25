@@ -50,6 +50,12 @@ rhput(processed_input_tbl, dir_on_hdfs)
 # )
 
 
+map.setup = expression({
+  load("processed_input_rdt.Rdata") # no need to give full path
+})
+
+
+
 
 
 map<-expression(
@@ -94,11 +100,13 @@ reduce<-expression(
 
 
 mr <- rhwatch(
-  setup = expression(rhload("/processed_input_rdt.Rdata")),
+  #setup = expression(rhload("/processed_input_rdt.Rdata")),
   map      = map,
   reduce   = reduce,
   input    = rhfmt(processed_input_tbl, type = "text"),
   output   = rhfmt(output, type = "text"),
   readback = FALSE,
+  setup=expression(map=map.setup),
+  shared=c("/processed_input_rdt.Rdata")
   
 )

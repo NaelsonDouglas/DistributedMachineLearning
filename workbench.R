@@ -1,23 +1,17 @@
 #library(Rhipe)
 #rhinit()
+
+#Parâmetros do usuário
 output="output"
 data_input = "small.csv"
 processed_input_tbl = "processed_input_tbl.csv"
 processed_input_rdt = "processed_input_rdt.Rdata"
 dir_on_hdfs = "/"
-
-
-
-
-# Remove tudo do ambiente  
 src="small.csv"
 
 
-#lê localmente o .csv (lê sem header por que tudo vai ser salvo como texto no final)
+#lê localmente o .csv 
 data <- (read.csv(src, stringsAsFactors=FALSE, sep=";", header=T))
-
-
-
 
 # Remove wrong values
 data <- subset(data, (BATHROOM   > 0 & BATHROOM   <=1 &
@@ -36,11 +30,9 @@ data <- data[order(data$ANO, data$MES, data$MUNIC_RES, data$IDADE, data$SEXO)]
 data<-na.omit(data)
 
 #Salva a entrada pre-processada no disco local. Este arquivo será a entrada do maper
-write.table(data, processed_input_tbl, sep=",", row.names=FALSE, col.names=TRUE)
-
+write.table(data, processed_input_tbl, sep=",", row.names=FALSE, col.names=TRUE) 
 #Gera um Rdata com a entrada pre-processada. Este rdata será compartilhado com todos os mapers  
 rhsave(data,file=processed_input_rdt)
-
 
 
 #Exporta esta entrada pre-processada para o HDFS
@@ -49,21 +41,16 @@ rhput(processed_input_tbl, dir_on_hdfs)
 
 # )
 
-
+#setup usado para criar a variável global com o Rdata
 map.setup = expression({
   load("processed_input_rdt.Rdata") # no need to give full path
 })
 
-
-
-
-
-map<-expression(
-  
+#Map
+map<-expression(  
   
   lapply(seq_along(map.keys), function(i){
-    line = strsplit(map.values[[i]],",")[[1]]
-    
+    line = strsplit(map.values[[i]],",")[[1]]    
     
     outputvalue<- data.frame(
       MES       <-as.numeric(line[1]),
@@ -76,13 +63,10 @@ map<-expression(
       stringsAsFactors <- FALSE
     )    
     
-    rhcollect(i,outputvalue)})
-  
-  
-  
+    rhcollect(i,outputvalue)})   
 )
 
-
+#Reduce
 reduce<-expression(
   
   pre={
@@ -98,7 +82,7 @@ reduce<-expression(
   }
 )
 
-
+#driver
 mr <- rhwatch(
   #setup = expression(rhload("/processed_input_rdt.Rdata")),
   map      = map,

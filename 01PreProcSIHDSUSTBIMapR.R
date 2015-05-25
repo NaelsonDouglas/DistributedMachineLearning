@@ -1,69 +1,98 @@
-#Referência para o bug "variable discovered, but not found: https://groups.google.com/forum/#!searchin/rhipe/Following$20variables$20were$20discovered$20but$20not$20found$3A/rhipe/DPRMo92EtIc/G0R2oe7fvBMJ"
-#Este warning diz que o Rhipe tentou copiar a variável do workspace, mas ele não existia lá. Então ele cria uma nova.
-library(Rhipe)
-rhinit()
+#library(Rhipe)
+#rhinit()
+output="output"
+data_input = "small.csv"
+processed_input_tbl = "processed_input_tbl.csv"
+processed_input_rdt = "processed_input_rdt.Rdata"
+dir_on_hdfs = "/"
 
-rhput("small.csv","/small.csv")
 
-map <-expression(
+
+
+# Remove tudo do ambiente  
+src="small.csv"
+
+
+#lê localmente o .csv (lê sem header por que tudo vai ser salvo como texto no final)
+data <- (read.csv(src, stringsAsFactors=FALSE, sep=";", header=T))
+
+
+
+
+# Remove wrong values
+data <- subset(data, (BATHROOM   > 0 & BATHROOM   <=1 &
+                        ELETRICITY > 0 & ELETRICITY <=1 &
+                        LITERACY   > 0 & LITERACY   <=1 &
+                        URB_RUR    > 0 & URB_RUR    <=1 &
+                        EDUCATION  > 0 & EDUCATION  <=1 &
+                        ANO >= 2002    & ANO        <=2012
+)
+)
+
+# Ordenando dados 
+data <- data[order(data$ANO, data$MES, data$MUNIC_RES, data$IDADE, data$SEXO)]
+
+# remove linha que contenha qualquer NA
+data<-na.omit(data)
+
+#Salva a entrada pre-processada no disco local. Este arquivo será a entrada do maper
+write.table(data, processed_input_tbl, sep=",", row.names=FALSE, col.names=TRUE)
+
+#Gera um Rdata com a entrada pre-processada. Este rdata será compartilhado com todos os mapers  
+rhsave(data,file=processed_input_rdt)
+
+
+
+#Exporta esta entrada pre-processada para o HDFS
+#------TO-DO: Ver se tem como evitar esse write.table e mandar direto da memória para o HDFS---------
+rhput(processed_input_tbl, dir_on_hdfs)
+
+# )
+
+
+map.setup = expression({
+  load("processed_input_rdt.Rdata") # no need to give full path
+})
+
+
+
+
+
+map<-expression(
   
   
-  
-  
-  #Executa os maps 
-  lapply(seq_along(map.keys), function(i){  
-    i2=i+1
-    #separa a linha do .csv 
-    #map.values[i] == coluna i  
-    #map.values[[i]] == linha i
-    current_line = strsplit(map.values[[i]], ";")[[1]]           
-    next_line = strsplit(map.values[[i2]], ";")[[1]]
+  lapply(seq_along(map.keys), function(i){
+    line = strsplit(map.values[[i]],",")[[1]]
     
-    if (current_line != next_line ){ 
-      
-  #Este dataframe armazena uma única linha do .csv e a usa como value.
-  outputvalue <- data.frame(    
-    UF =  as.numeric(current_line[1]),
-    CITY = as.numeric(current_line[2]),
-    ANO = as.numeric(current_line[3]),
-    MES = as.numeric(current_line[4]),
-    MUNIC_MOV = as.numeric(current_line[5]),
-    MUNIC_RES  = current_line[6], ##Este campo contém caracteres não-numéricos
-    IDADE = as.numeric(current_line[7]),
-    SEXO = as.numeric(current_line[8]),
-    DIAG_PRINC = current_line[9],
-    DIAS_PERM = as.numeric(current_line[10]),
-    VAL_UTI = as.numeric(current_line[11]),
-    VAL_TOT = as.numeric(current_line[12]),
-    MORTE = as.numeric(current_line[13]),
-    EDUCATION = as.numeric(current_line[14]),
-    BATHROOM = as.numeric(current_line[15]),
-    ELETRICITY = as.numeric(current_line[16]),
-    LITERACY = as.numeric(current_line[17]),
-    URB_RUR = as.numeric(current_line[18]),
-    stringsAsFactors = FALSE
-  ) 
-  #Faz a coleta do data-frame
-  outputkey = i
-  rhcollect(outputkey,outputvalue)
-}
+    
+    outputvalue<- data.frame(
+      MES       <-as.numeric(line[1]),
+      IDADE     <-as.numeric(line[2]),
+      ANO       <-as.numeric(line[3]),
+      MUNIC_RES <-as.numeric(line[4]),
+      CITY      <-as.numeric(line[5]),
+      UF        <-as.numeric(line[6]),
+      MUNIC_MOV <-as.numeric(line[7]),
+      stringsAsFactors <- FALSE
+    )    
+    
+    rhcollect(i,outputvalue)})
+  
+  
+  
+)
 
-# Checa se os registros são duplicados. 
-# Em caso positivo nada é feito e o map para sem nenhum valor emitido(valores repetidos não são postos à frente)
-# Em caso negativo, a coleta é feita usando o número da linha como key
 
-else{}     
-  }))
-
-reduce <- expression(
-  pre = {    
-    reduceoutputvalue <- data.frame()   
+reduce<-expression(
+  
+  pre={
+    reduceoutputvalue <-data.frame()
   },
-  reduce = {
-    reduceoutputvalue <- rbind(reduceoutputvalue, do.call(rbind, reduce.values))     
+  reduce={
+    
+    reduceoutputvalue<-rbind(reduceoutputvalue, do.call(rbind, reduce.values))
   },
-  post = {
-    #joga os valores para a saída sob uma mesma key (já que temos apenas um arquivo para ser salvo)
+  post={
     reduceoutputkey <- reduce.key[1]    
     rhcollect(reduceoutputkey, reduceoutputvalue)
   }
@@ -71,9 +100,13 @@ reduce <- expression(
 
 
 mr <- rhwatch(
+  #setup = expression(rhload("/processed_input_rdt.Rdata")),
   map      = map,
   reduce   = reduce,
-  input    = rhfmt("small.csv", type = "text"),
-  output   = rhfmt("output", type = "text"),
-  readback = TRUE  
+  input    = rhfmt(processed_input_tbl, type = "text"),
+  output   = rhfmt(output, type = "text"),
+  readback = FALSE,
+  setup=expression(map=map.setup),
+  shared=c("/processed_input_rdt.Rdata")
+  
 )
