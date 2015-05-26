@@ -2,12 +2,15 @@
 #rhinit()
 
 #Parâmetros do usuário
+
 output="output"
 data_input = "small.csv"
 processed_input_tbl = "processed_input_tbl.csv"
 processed_input_rdt = "processed_input_rdt.Rdata"
 dir_on_hdfs = "/"
 src="small.csv"
+rhput(src, src)
+
 
 
 #lê localmente o .csv 
@@ -54,15 +57,16 @@ map<-expression(
     
     
     outputvalue<- data.frame(
-      MES       <-as.numeric(line[1]),
-      IDADE     <-as.numeric(line[2]),
-      ANO       <-as.numeric(line[3]),
-      MUNIC_RES <-as.numeric(line[4]),
-      CITY      <-as.numeric(line[5]),
-      UF        <-as.numeric(line[6]),
-      MUNIC_MOV <-as.numeric(line[7]),
-      stringsAsFactors <- FALSE
-    )    
+      MES       =as.numeric(line[1]),
+      IDADE     =as.numeric(line[2]),
+      ANO       =as.numeric(line[3]),
+      MUNIC_RES =as.numeric(line[4]),
+      CITY      =as.numeric(line[5]),
+      UF        =as.numeric(line[6]),
+      MUNIC_MOV =as.numeric(line[7]),
+      stringsAsFactors = FALSE
+    )  
+    
     
     load("processed_input_rdt.Rdata") #lê a base de dados read-only para poder usar a mesma como comparação.
     
