@@ -32,6 +32,7 @@ data<-na.omit(data)
 #Salva a entrada pre-processada no disco local. Este arquivo será a entrada do maper
 write.table(data, processed_input_tbl, sep=",", row.names=FALSE, col.names=TRUE) 
 #Gera um Rdata com a entrada pre-processada. Este rdata será compartilhado com todos os mapers  
+data <-"kek"
 rhsave(data,file=processed_input_rdt)
 
 
@@ -52,6 +53,7 @@ map<-expression(
   lapply(seq_along(map.keys), function(i){
     line = strsplit(map.values[[i]],",")[[1]]    
     
+    
     outputvalue<- data.frame(
       MES       <-as.numeric(line[1]),
       IDADE     <-as.numeric(line[2]),
@@ -62,6 +64,9 @@ map<-expression(
       MUNIC_MOV <-as.numeric(line[7]),
       stringsAsFactors <- FALSE
     )    
+    #Esta linha abaixo é um teste, remover ela
+    load("processed_input_rdt.Rdata")
+    outputvalue <-data
     
     rhcollect(i,outputvalue)})   
 )
@@ -88,7 +93,7 @@ mr <- rhwatch(
   map      = map,
   reduce   = reduce,
   input    = rhfmt(processed_input_tbl, type = "text"),
-  output   = rhfmt(output, type = "text"),
+  output   = rhfmt(output, type = "sequence"),
   readback = FALSE,
   setup=expression(map=map.setup),
   shared=c("/processed_input_rdt.Rdata")
