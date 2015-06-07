@@ -2,14 +2,13 @@
 #rhinit()
 
 #Parâmetros do usuário
-
 output="output"
-data_input = "small.csv"
 processed_input_tbl = "processed_input_tbl.csv"
 processed_input_rdt = "processed_input_rdt.Rdata"
 dir_on_hdfs = "/"
+data_input = "small.csv"
 src="small.csv"
-rhput(src, src)
+rhput(data_input, src)
 
 
 
@@ -33,7 +32,7 @@ data <- data[order(data$ANO, data$MES, data$MUNIC_RES, data$IDADE, data$SEXO)]
 data<-na.omit(data)
 
 #Salva a entrada pre-processada no disco local. Este arquivo será a entrada do maper
-write.table(data, processed_input_tbl, sep=",", row.names=FALSE, col.names=TRUE) 
+write.table(data, processed_input_tbl, sep=",", row.names=FALSE, col.names=FALSE) 
 #Gera um Rdata com a entrada pre-processada. Este rdata será compartilhado com todos os mapers  
 rhsave(data,file=processed_input_rdt)
 
@@ -46,7 +45,7 @@ rhput(processed_input_tbl, dir_on_hdfs)
 
 #setup usado para criar a variável global com o Rdata
 map.setup = expression({
-  load("processed_input_rdt.Rdata") # no need to give full path
+  load("processed_input_rdt.Rdata") 
 })
 
 #Map
@@ -57,34 +56,28 @@ map<-expression(
     
     
     outputvalue<- data.frame(
-      MES       =as.numeric(line[1]),
-      IDADE     =as.numeric(line[2]),
-      ANO       =as.numeric(line[3]),
-      MUNIC_RES =as.numeric(line[4]),
-      CITY      =as.numeric(line[5]),
-      UF        =as.numeric(line[6]),
-      MUNIC_MOV =as.numeric(line[7]),
+      UF        = as.numeric(line[1]),
+      CITY      = as.numeric(line[2]),
+      ANO       = as.numeric(line[3]),
+      MES       = as.numeric(line[4]),
+      MUNIC_MOV = as.numeric(line[5]),
+      MUNIC_RES = as.numeric(line[6]),
+      IDADE     = as.numeric(line[7]),
       stringsAsFactors = FALSE
-    )  
-    
+    ) 
     
     load("processed_input_rdt.Rdata") #lê a base de dados read-only para poder usar a mesma como comparação.
     
     
     i2 = i+1 #próxima tupla
     #Não é possível fazer data[i,] == data[i2,] pois as tuplas de data estão distribuidas, por isso a necessidade de uma variável global para a comparação.
-    if (toString(data[i,])  == toString(outputvalue[i2,])&
-          toString(data[i,])  == toString(outputvalue[i2,])&
-          toString(data[i,])  == toString(outputvalue[i2,])&
-          toString(data[i,])  == toString(outputvalue[i2,])&
-          toString(data[i,])  == toString(outputvalue[i2,])&
-          toString(data[i,])  == toString(outputvalue[i2,])&
-          toString(data[i,])  == toString(outputvalue[i2,]))
+    if (toString(data[i2,]) == toString(outputvalue))
     {
       #Se as duas tuplas foram iguais, o map não emite valores.
     }
     else
-    {
+    {    
+      
       rhcollect(i,outputvalue)  
     }
   })   
@@ -118,3 +111,5 @@ mr <- rhwatch(
   shared=c("/processed_input_rdt.Rdata")
   
 )
+
+
