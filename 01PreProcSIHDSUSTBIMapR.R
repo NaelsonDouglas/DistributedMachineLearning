@@ -1,5 +1,5 @@
-#library(Rhipe)
-#rhinit()
+library(Rhipe)
+rhinit()
 
 #Parâmetros do usuário
 output="output"
@@ -39,7 +39,6 @@ rhsave(data,file=processed_input_rdt)
 #------TO-DO: Ver se tem como evitar esse write.table e mandar direto da memória para o HDFS---------
 rhput(processed_input_tbl, dir_on_hdfs)
 
-# )
 
 #setup usado para criar a variável global com o Rdata
 map.setup = expression({
@@ -50,9 +49,8 @@ map.setup = expression({
 map<-expression(  
   
   lapply(seq_along(map.keys), function(i){
-    line = strsplit(map.values[[i]],",")[[1]]    
-    
-    
+    line = strsplit(map.values[[i]],",")[[1]]
+       
     outputvalue<- data.frame(
       UF        = as.numeric(line[1]),
       CITY      = as.numeric(line[2]),
@@ -65,8 +63,7 @@ map<-expression(
     )     
     load("processed_input_rdt.Rdata") #lê a base de dados read-only para poder usar a mesma como comparação.      
     
-    #se a linha atual e a próxima forem iguais, então nada é emitido    
-    
+    #se a linha atual e a próxima forem iguais, então nada é emitido  
     next_line = data[i+1,]    
     
     #No último maper next_line será uma linha cheia de NA's, se eles entrarem assim no if abaixo, da problema. Por isto preenchi tudo com um valor arbitrário
@@ -74,8 +71,7 @@ map<-expression(
       next_line[1:length(next_line)] = -1
     }      
     
-    if (
-        
+    if (      
         next_line$UF         == outputvalue$UF &
         next_line$CITY       == outputvalue$CITY &
         next_line$ANO        == outputvalue$ANO &
@@ -83,8 +79,8 @@ map<-expression(
         next_line$MUNIC_MOV  == outputvalue$MUNIC_MOV &
         next_line$MUNIC_RES  == outputvalue$MUNIC_RES &
         next_line$IDADE      == outputvalue$IDADE         
-          
-      )
+      
+    )
     {
       #Se as duas tuplas foram iguais, o map não emite valores.
     }
