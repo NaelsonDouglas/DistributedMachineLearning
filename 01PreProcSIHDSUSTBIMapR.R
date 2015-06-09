@@ -10,8 +10,6 @@ data_input = "small.csv"
 src="small.csv"
 rhput(data_input, src)
 
-
-
 #lê localmente o .csv 
 data <- (read.csv(src, stringsAsFactors=FALSE, sep=";", header=T))
 
@@ -26,7 +24,7 @@ data <- subset(data, (BATHROOM   > 0 & BATHROOM   <=1 &
 )
 
 # Ordenando dados 
-data <- data[order(data$ANO, data$MES, data$MUNIC_RES, data$IDADE, data$SEXO)]
+data <- data[order(data$UF,data$ANO, data$MES, data$MUNIC_RES, data$IDADE, data$SEXO),]
 
 # remove linha que contenha qualquer NA
 data<-na.omit(data)
@@ -64,20 +62,35 @@ map<-expression(
       MUNIC_RES = as.numeric(line[6]),
       IDADE     = as.numeric(line[7]),
       stringsAsFactors = FALSE
-    ) 
+    )     
+    load("processed_input_rdt.Rdata") #lê a base de dados read-only para poder usar a mesma como comparação.      
     
-    load("processed_input_rdt.Rdata") #lê a base de dados read-only para poder usar a mesma como comparação.
+    #se a linha atual e a próxima forem iguais, então nada é emitido    
     
+    next_line = data[i+1,]    
     
-    i2 = i+1 #próxima tupla
-    #Não é possível fazer data[i,] == data[i2,] pois as tuplas de data estão distribuidas, por isso a necessidade de uma variável global para a comparação.
-    if (toString(data[i2,]) == toString(outputvalue))
+    #No último maper next_line será uma linha cheia de NA's, se eles entrarem assim no if abaixo, da problema. Por isto preenchi tudo com um valor arbitrário
+    if(is.na(next_line[1])){
+      next_line[1:length(next_line)] = -1
+    }      
+    
+    if (
+        
+        next_line$UF         == outputvalue$UF &
+        next_line$CITY       == outputvalue$CITY &
+        next_line$ANO        == outputvalue$ANO &
+        next_line$MES        == outputvalue$MES &
+        next_line$MUNIC_MOV  == outputvalue$MUNIC_MOV &
+        next_line$MUNIC_RES  == outputvalue$MUNIC_RES &
+        next_line$IDADE      == outputvalue$IDADE         
+          
+      )
     {
       #Se as duas tuplas foram iguais, o map não emite valores.
     }
     else
     {    
-      
+      #emite a linha, caso ela seja diferente da próxima
       rhcollect(i,outputvalue)  
     }
   })   
@@ -87,29 +100,30 @@ map<-expression(
 reduce<-expression(
   
   pre={
+    #cria o data.frame que será jogado na saída
     reduceoutputvalue <-data.frame()
   },
   reduce={
-    
+    #combina os vários maps dentro do dataframe
     reduceoutputvalue<-rbind(reduceoutputvalue, do.call(rbind, reduce.values))
   },
   post={
+    #define uma única key, já que teremos uma única saída
     reduceoutputkey <- reduce.key[1]    
+    #salva a combinação de todos os maps no HDFS
     rhcollect(reduceoutputkey, reduceoutputvalue)
   }
 )
 
 #driver
-mr <- rhwatch(
-  #setup = expression(rhload("/processed_input_rdt.Rdata")),
+mr <- rhwatch( 
   map      = map,
   reduce   = reduce,
   input    = rhfmt(processed_input_tbl, type = "text"),
   output   = rhfmt(output, type = "sequence"),
   readback = FALSE,
   setup=expression(map=map.setup),
-  shared=c("/processed_input_rdt.Rdata")
-  
+  shared=c("/processed_input_rdt.Rdata")  
 )
-
+rhread(output)
 
