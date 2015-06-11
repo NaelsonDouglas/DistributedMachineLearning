@@ -1,3 +1,30 @@
+# TODO
+
+1. André, Naelson: definir o ambiente de execução distribuída.
+1. Elias: testar o código.
+1. Naelson, Elias: testar o código em ambiente distribuído.
+1. Elias, Naelson: revisão de literatura: comparação de aplicação real implementadas em R e em Julia. O Objetivo é saber o quão relevante isso é para um meio de comunicação e qual seria esse meio de comunicação (periódicos, conferências, workshops).
+1. Todos: definirmos os cenários de avaliação.
+1. Elias, Naelson: realizar a avaliação.
+1. Todos: redação do artigo.
+
+
+## Improvements
+
+* translate the code comments to English
+* add comments to #driver at the PreProc-SIHD-SUS-TBI-MapReduce.R
+
+# Overview
+
+This code is a pre-processing tool for removing double data from SUS skull fracture data sets.
+
+* input
+	* CSV
+	* SUS data set with "trumatismo craniano"
+	* 
+* ouput
+	* the same data without double data
+
 ## R Version (/src/R)
 
 
