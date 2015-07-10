@@ -1,15 +1,42 @@
-# TODO
+# Planejamento
 
-1. André, Naelson: definir o ambiente de execução distribuída.
-1. Elias: testar o código.
-1. Naelson, Elias: testar o código em ambiente distribuído.
-1. Elias, Naelson: revisão de literatura: comparação de aplicação real implementadas em R e em Julia. O Objetivo é saber o quão relevante isso é para um meio de comunicação e qual seria esse meio de comunicação (periódicos, conferências, workshops).
-1. Todos: definirmos os cenários de avaliação.
-1. Elias, Naelson: realizar a avaliação.
-1. Todos: redação do artigo.
+## Obervações
 
 
-## Improvements
+* Legenda
+	* **Pessoa DATA** = Quem deve fazer e o prazo
+* A pesquisa deverá ser reproduzível:
+	* documentar códigos (comentários didáticos e em inglês)
+		* código-fonte da aplicação
+		* scripts de experimentação
+		* scripts de configuração do ambiente de execução (Docker images, etc.)
+	* o código será disponibilizado no github
+
+## Cronograma
+
+* André, Naelson: definir o ambiente de execução distribuída.
+	* Docker no cluster (sem OpenStack)
+	* Obs.: se André não conseguir colocar Julia no cluster, usaremos a OpenStack
+* **André 2015-07-30**: preparar o ambiente de execução
+* **Elias, Naelson 2015-08-10**
+	* Revisão de literatura
+		* Artigo-chave: [Scalable Strategies for Computing with Massive Data](http://www.jstatsoft.org/v55/i14/paper)
+		* Selecionar artigos da [Web of Science](http://wokinfo.com) e [ACM](http://dl.acm.org)
+		* Fazer resumo de todo artigo lido em LaTex: `julia-R-performance.tex`
+			* Padronizar as referências bibtex
+	* Definição do objetivo do artigo baseado na revisão de literatura (pode ser outro objetivo específico, mas comecem um desses dois para fazer a busca por artigos):
+		* comparação de desempenho entre o pacote de R `foreach`, Rhipe, e Julia `pmap`
+		* comparação de desempenho entre implementações MapReduce para computação científica/técnica (sintaxe numérica como R e Julia): Rhipe vs Julia (suporte nativo: pmap + parallel_reduce). 
+* **Naelson, Elias 2015-08-20**: implementação
+	* aplicação utilizando redes bayesianas (como estudo de caso, benchmark)
+	* aplicação real, estudo de caso SUS ou outro do sanduíche do Elias
+* **Todos 2015-08-27**: definir os cenários de avaliação
+* **Elias, Naelson 2015-09-07**: implementar scripts de avaliação
+* **Elias, Naelson 2015-09-14**: executar experimentos
+* **Todos 2015-10-14**: redação do artigo
+
+
+# TODO list (coding)
 
 * translate the code comments to English
 * add comments to #driver at the PreProc-SIHD-SUS-TBI-MapReduce.R
